@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сбор лидов — Битрикс</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a22;
+    --surface2: #22222e;
+    --border: #2e2e3e;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --green: #34d399;
+    --red: #f87171;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  body {
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    padding-bottom: 40px;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size: 16px; font-weight: 800; color: #fff; }
+  header p { font-size: 11px; color: var(--accent2); margin-top: 2px; }
+  .badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    min-width: 70px;
+    text-align: center;
+  }
+
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    flex: 1;
+    padding: 13px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+  .page { display: none; padding: 14px; }
+  .page.active { display: block; }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+  }
+  .field { margin-bottom: 10px; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .req { color: var(--accent); }
+  input, textarea {
+    display: block;
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 11px 13px;
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+  textarea { min-height: 75px; resize: vertical; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .buttons { display: flex; gap: 8px; margin-bottom: 16px; }
+  .btn {
+    flex: 1;
+    display: block;
+    padding: 15px 8px;
+    border-radius: 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    -webkit-appearance: none;
+    appearance: none;
+    color: #fff;
+  }
+  .btn-clear { background: var(--surface2); color: var(--text); border: 1.5px solid var(--border); }
+  .btn-save { background: linear-gradient(135deg, #6c63ff, #8b5cf6); }
+  .btn-csv { background: linear-gradient(135deg, #065f46, #34d399); flex: 0.85; }
+
+  /* СПИСОК */
+  .lead-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .lead-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .lead-company { font-size: 12px; color: var(--accent2); font-weight: 600; margin-bottom: 6px; }
+  .lead-details { font-size: 12px; color: var(--muted); line-height: 1.8; }
+  .lead-tag {
+    display: inline-block;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.3);
+    color: var(--accent2);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+  .btn-del {
+    float: right;
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.25);
+    color: var(--red);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    -webkit-appearance: none;
+  }
+  .empty {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--muted);
+  }
+  .empty .ico { font-size: 44px; margin-bottom: 12px; }
+  .empty h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+
+  .info-box {
+    background: rgba(108,99,255,0.1);
+    border: 1px solid rgba(108,99,255,0.25);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--accent2);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .toast {
+    position: fixed;
+    top: 14px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 11px 22px;
+    border-radius: 30px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 9999;
+    pointer-events: none;
+    white-space: nowrap;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>📋 Сбор лидов</h1>
+    <p>Битрикс CRM — мероприятия</p>
+  </div>
+  <div class="badge" id="badge">0 лидов</div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" id="tab-form" onclick="showPage('form')">➕ Новый лид</div>
+  <div class="tab" id="tab-list" onclick="showPage('list')">📂 Список</div>
+</div>
+
+<!-- ФОРМА -->
+<div id="page-form" class="page active">
+
+  <div class="section">
+    <div class="section-title">🎯 Мероприятие</div>
+    <div class="field">
+      <label>Источник (мероприятие) <span class="req">*</span></label>
+      <input type="text" id="f_event" placeholder="Green Art Иваново (2026)" list="lst-events">
+      <datalist id="lst-events">
+        <option value="Green Art Иваново (2026)">
+        <option value="АРХ Москва 2026">
+        <option value="Maison&Objet 2026">
+      </datalist>
+    </div>
+    <div class="field">
+      <label>Ответственный менеджер <span class="req">*</span></label>
+      <input type="text" id="f_manager" placeholder="Ваше имя" list="lst-managers">
+      <datalist id="lst-managers">
+        <option value="Наталья Репина">
+      </datalist>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">👤 Контакт</div>
+    <div class="field">
+      <label>Имя <span class="req">*</span></label>
+      <input type="text" id="f_name" placeholder="Имя и фамилия" autocomplete="off">
+    </div>
+    <div class="two">
+      <div class="field">
+        <label>Должность</label>
+        <input type="text" id="f_position" placeholder="Дизайнер" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Компания</label>
+        <input type="text" id="f_company" placeholder="Компания" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📞 Контакты</div>
+    <div class="field">
+      <label>Телефон</label>
+      <input type="tel" id="f_phone" placeholder="+7 000 000-00-00">
+    </div>
+    <div class="field">
+      <label>E-mail</label>
+      <input type="email" id="f_email" placeholder="email@company.ru">
+    </div>
+    <div class="two">
+      <div class="field">
+        <label>Telegram</label>
+        <input type="text" id="f_telegram" placeholder="@username" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Instagram</label>
+        <input type="text" id="f_instagram" placeholder="@username" autocomplete="off">
+      </div>
+    </div>
+    <div class="two">
+      <div class="field">
+        <label>Facebook</label>
+        <input type="text" id="f_facebook" placeholder="имя или ссылка" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>ВКонтакте</label>
+        <input type="text" id="f_vk" placeholder="имя или ссылка" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label>Сайт</label>
+      <input type="url" id="f_site" placeholder="https://...">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📝 Дополнительно</div>
+    <div class="field">
+      <label>Адрес объекта</label>
+      <input type="text" id="f_address" placeholder="г. Москва, ул..." autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Комментарии</label>
+      <textarea id="f_comments" placeholder="Заметки, интересы, детали разговора..."></textarea>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button type="button" class="btn btn-clear" onclick="clearForm()">Очистить</button>
+    <button type="button" class="btn btn-save" onclick="saveLead()">💾 Сохранить</button>
+    <button type="button" class="btn btn-csv" onclick="exportCSV()">⬇️ CSV</button>
+  </div>
+
+</div>
+
+<!-- СПИСОК -->
+<div id="page-list" class="page">
+  <div class="info-box">
+    ℹ️ Лиды хранятся пока страница открыта. Чтобы не потерять данные — нажмите <strong>⬇️ CSV</strong> на вкладке «Новый лид» и сохраните файл.
+  </div>
+  <div id="list-container"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Хранение в памяти — работает на всех браузерах без ограничений
+var leads = [];
+
+function showPage(name) {
+  document.getElementById('page-form').classList.remove('active');
+  document.getElementById('page-list').classList.remove('active');
+  document.getElementById('tab-form').classList.remove('active');
+  document.getElementById('tab-list').classList.remove('active');
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'list') renderList();
+}
+
+function g(id) {
+  var el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+function toast(msg, ok) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = (ok === false) ? '#f87171' : '#34d399';
+  t.style.color = (ok === false) ? '#fff' : '#065f46';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+function updateBadge() {
+  var n = leads.length;
+  var s = n === 1 ? 'лид' : (n >= 2 && n <= 4 ? 'лида' : 'лидов');
+  document.getElementById('badge').textContent = n + ' ' + s;
+}
+
+function saveLead() {
+  var name = g('f_name').trim();
+  var manager = g('f_manager').trim();
+  if (!name) { toast('⚠️ Введите имя контакта', false); return; }
+  if (!manager) { toast('⚠️ Укажите ответственного', false); return; }
+
+  var lead = {
+    id: Date.now(),
+    name: name,
+    position: g('f_position'),
+    company: g('f_company'),
+    phone: g('f_phone'),
+    email: g('f_email'),
+    telegram: g('f_telegram'),
+    instagram: g('f_instagram'),
+    facebook: g('f_facebook'),
+    vk: g('f_vk'),
+    site: g('f_site'),
+    address: g('f_address'),
+    comments: g('f_comments'),
+    manager: manager,
+    event: g('f_event') || 'Мероприятие'
+  };
+
+  leads.push(lead);
+  updateBadge();
+  toast('✅ Лид сохранён! Итого: ' + leads.length);
+
+  var ev = lead.event;
+  var mgr = lead.manager;
+  clearForm();
+  setTimeout(function(){
+    document.getElementById('f_event').value = ev;
+    document.getElementById('f_manager').value = mgr;
+  }, 30);
+}
+
+function clearForm() {
+  var ids = ['f_name','f_position','f_company','f_phone','f_email',
+    'f_telegram','f_instagram','f_facebook','f_vk','f_site',
+    'f_address','f_comments'];
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el) el.value = '';
+  }
+}
+
+function deleteLead(id) {
+  leads = leads.filter(function(l){ return l.id !== id; });
+  updateBadge();
+  renderList();
+  toast('🗑 Удалено');
+}
+
+function esc(s) {
+  return (s || '').toString()
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+function renderList() {
+  var c = document.getElementById('list-container');
+  if (!leads.length) {
+    c.innerHTML = '<div class="empty"><div class="ico">📭</div><h3>Лидов пока нет</h3><p>Добавьте контакт на вкладке «Новый лид»</p></div>';
+    return;
+  }
+  var html = '';
+  for (var i = leads.length - 1; i >= 0; i--) {
+    var l = leads[i];
+    html += '<div class="lead-card">';
+    html += '<button type="button" class="btn-del" onclick="deleteLead(' + l.id + ')">✕ удалить</button>';
+    html += '<h3>' + esc(l.name) + '</h3>';
+    if (l.company) {
+      html += '<div class="lead-company">' + (l.position ? esc(l.position) + ' · ' : '') + esc(l.company) + '</div>';
+    }
+    html += '<div class="lead-details">';
+    if (l.phone) html += '📞 ' + esc(l.phone) + '<br>';
+    if (l.email) html += '✉️ ' + esc(l.email) + '<br>';
+    if (l.telegram) html += '✈️ ' + esc(l.telegram) + '<br>';
+    if (l.address) html += '📍 ' + esc(l.address) + '<br>';
+    if (l.comments) html += '💬 ' + esc(l.comments);
+    html += '</div>';
+    html += '<div class="lead-tag">🎯 ' + esc(l.event) + ' · ' + esc(l.manager) + '</div>';
+    html += '</div>';
+  }
+  c.innerHTML = html;
+}
+
+function exportCSV() {
+  if (!leads.length) { toast('⚠️ Нет лидов для экспорта', false); return; }
+  var headers = ['ID','Название лида','Имя','Рабочий телефон','Личная страница',
+    'Рабочий e-mail','Контакт Facebook','Контакт Telegram','Контакт ВКонтакте',
+    'Комментарии Instagram','Название компании','Должность','Источник',
+    'Ответственный','Источник (мероприятия)','Адрес объекта'];
+  var rows = leads.map(function(l) {
+    return ['', l.company || l.name, l.name, l.phone, l.site,
+      l.email, l.facebook, l.telegram, l.vk, l.instagram,
+      l.company, l.position, 'Выставка', l.manager, l.event, l.address];
+  });
+  function q(v) {
+    var s = (v || '').toString();
+    if (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0)
+      return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+  var csv = [headers].concat(rows).map(function(r){ return r.map(q).join(','); }).join('\n');
+  var blob = new Blob(['\uFEFF' + csv], {type: 'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'leads_bitrix_' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('✅ Экспортировано ' + leads.length + ' лидов');
+}
+
+updateBadge();
+</script>
+</body>
+</html>
